@@ -33,4 +33,4 @@ WORKDIR /mrpt_build
 VOLUME ["$HOME/code/mrpt:/mrpt_build"]
 
 # Build MRPT using CMake
-CMD cmake . && make -j$(nproc) && make test_legacy
+CMD cmake . && make -j$(nproc) && make test_legacy && bash
