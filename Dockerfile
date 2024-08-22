@@ -14,6 +14,8 @@ RUN apt-get update && apt-get install -y \
     sudo \
     software-properties-common
 
+RUN apt-get install -y \
+    git-buildpackage
 
 # Add the source line to the sources.list
 RUN echo "deb-src https://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list
