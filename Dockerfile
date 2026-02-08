@@ -4,6 +4,16 @@ FROM debian:sid
 # Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Allow passing user info from host
+ARG USERNAME
+ARG USER_UID
+ARG USER_GID
+
+# Default to 'developer' if not provided
+ENV USERNAME=${USERNAME:-developer}
+ENV USER_UID=${USER_UID:-1000}
+ENV USER_GID=${USER_GID:-1000}
+
 # Update apt and install build dependencies for MRPT
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -12,27 +22,35 @@ RUN apt-get update && apt-get install -y \
     wget \
     lsb-release \
     sudo \
-    software-properties-common
-
-RUN apt-get install -y \
-    git-buildpackage
+    software-properties-common \
+    git-buildpackage && \
+    rm -rf /var/lib/apt/lists/*
 
 # Add the source line to the sources.list
-RUN echo "deb-src https://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list
+RUN echo "deb-src https://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get build-dep -y mrpt && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Update the package list
-RUN apt-get update
+# Create the same user as on the host
+RUN groupadd --gid ${USER_GID} ${USERNAME} && \
+    useradd --uid ${USER_UID} --gid ${USER_GID} -m ${USERNAME} && \
+    echo "${USERNAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USERNAME}
 
+# Set work directory
+WORKDIR /tmp/mrpt_build
 
-RUN apt-get build-dep -y mrpt \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+# Use the new user
+USER ${USERNAME}
+ENV HOME=/home/${USERNAME}
+ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 
-# Create a working directory inside the container
-WORKDIR /mrpt_build
+# Optional: Preconfigure git defaults (useful if .gitconfig isn’t mounted)
+RUN git config --global user.name "${USERNAME}" && \
+    git config --global user.email "${USERNAME}@example.com"
 
-# Link the external host directory $HOME/code/mrpt to /mrpt_build in the container
-VOLUME ["$HOME/code/mrpt:/mrpt_build"]
+# Define mount points (generic)
+# These don't hardcode host paths but define mountable dirs
+VOLUME ["/tmp/mrpt_build", "/home/${USERNAME}/.gitconfig", "/home/${USERNAME}/.ssh"]
 
-# Build MRPT using CMake
-CMD cmake . && make -j$(nproc) && make test_legacy && bash
+CMD ["/bin/bash"]

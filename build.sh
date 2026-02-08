@@ -1,3 +1,7 @@
 #!/bin/bash
 
-docker build -t mrpt_builder .
+docker build \
+  --build-arg USERNAME=$(whoami) \
+  --build-arg USER_UID=$(id -u) \
+  --build-arg USER_GID=$(id -g) \
+  -t mrpt_builder .
