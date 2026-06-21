@@ -14,7 +14,7 @@ ENV USERNAME=${USERNAME:-developer}
 ENV USER_UID=${USER_UID:-1000}
 ENV USER_GID=${USER_GID:-1000}
 
-# Update apt and install build dependencies for MRPT
+# Update apt and install base tooling + Debian packaging / gbp toolchain
 RUN apt-get update && apt-get install -y \
     build-essential \
     cmake \
@@ -23,14 +23,71 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     sudo \
     software-properties-common \
-    git-buildpackage && \
-    rm -rf /var/lib/apt/lists/*
+    dpkg-dev \
+    debhelper \
+    devscripts \
+    equivs \
+    git-buildpackage \
+    pristine-tar \
+    quilt \
+    fakeroot \
+    lintian \
+    && rm -rf /var/lib/apt/lists/*
 
-# Add the source line to the sources.list
-RUN echo "deb-src https://deb.debian.org/debian/ unstable main contrib non-free" >> /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get build-dep -y mrpt && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install MRPT build dependencies, as listed in debian/control (Build-Depends)
+RUN apt-get update && apt-get install -y \
+    dh-sequence-python3 \
+    chrpath \
+    pkgconf \
+    perl \
+    colcon \
+    python3-colcon-cmake \
+    python3-colcon-defaults \
+    python3-colcon-ros \
+    python3-colcon-recursive-crawl \
+    python3-colcon-package-information \
+    python3-colcon-package-selection \
+    python3-colcon-parallel-executor \
+    python3-colcon-output \
+    python3-colcon-library-path \
+    python3-colcon-metadata \
+    libeigen3-dev \
+    libglfw3-dev \
+    libgl-dev \
+    libglu1-mesa-dev \
+    libxrandr-dev \
+    libxxf86vm-dev \
+    libassimp-dev \
+    libcli11-dev \
+    libzstd-dev \
+    libwxgtk3.2-dev \
+    wx-common \
+    qtbase5-dev \
+    libqt5opengl5-dev \
+    libsimpleini-dev \
+    libicu-dev \
+    libnanoflann-dev \
+    libfyaml-dev \
+    libtinyxml2-dev \
+    liboctomap-dev \
+    zlib1g-dev \
+    libgtest-dev \
+    libglew-dev \
+    fonts-roboto-fontface \
+    pybind11-dev \
+    python3-all-dev \
+    python3-numpy \
+    python3-setuptools \
+    libavcodec-dev \
+    libavformat-dev \
+    libavutil-dev \
+    libswscale-dev \
+    libdc1394-dev \
+    libopenni2-dev \
+    libpcap-dev \
+    libusb-1.0-0-dev \
+    libftdi1-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create the same user as on the host
 RUN groupadd --gid ${USER_GID} ${USERNAME} && \
