@@ -87,6 +87,8 @@ RUN apt-get update && apt-get install -y \
     libpcap-dev \
     libusb-1.0-0-dev \
     libftdi1-dev \
+    xauth \
+    xvfb \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create the same user as on the host

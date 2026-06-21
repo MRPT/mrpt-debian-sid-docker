@@ -78,7 +78,9 @@ RUN apt-get update && apt-get install -y \
     libopenni2-dev \
     libpcap-dev \
     libusb-1.0-0-dev \
-    libftdi1-dev
+    libftdi1-dev \
+    xauth \
+    xvfb
 
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/*
