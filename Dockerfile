@@ -89,6 +89,7 @@ RUN apt-get update && apt-get install -y \
     libftdi1-dev \
     xauth \
     xvfb \
+    libexprtk-dev \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Create the same user as on the host

@@ -80,7 +80,8 @@ RUN apt-get update && apt-get install -y \
     libusb-1.0-0-dev \
     libftdi1-dev \
     xauth \
-    xvfb
+    xvfb \
+    libexprtk-dev
 
 RUN apt-get clean \
     && rm -rf /var/lib/apt/lists/*
